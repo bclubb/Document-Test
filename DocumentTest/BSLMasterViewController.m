@@ -7,7 +7,7 @@
 //
 
 #import "BSLMasterViewController.h"
-
+#import "FileRepresentation.h"
 #import "BSLDetailViewController.h"
 
 @implementation BSLMasterViewController
@@ -29,16 +29,10 @@
 }
 
 - (void)addNote:(id)sender{
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"yyyyMMdd_hhmmss"];
-    NSString *fileName = [NSString stringWithFormat:@"Note_%@", [formatter stringFromDate:[NSDate date]]];
-    
-    NSURL *ubiq = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:nil];
-    NSURL *ubiqPackage = [[ubiq URLByAppendingPathComponent:@"Documents"] URLByAppendingPathComponent:fileName];
-    Note *doc = [[Note alloc] initWithFileURL:ubiqPackage];
-    [doc saveToURL:[doc fileURL] forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success){
+    Note *note = [Note newNote];
+    [note saveToURL:[note fileURL] forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success){
         if(success){
-            [self.notes addObject:doc];
+            [self.notes addObject:[[FileRepresentation alloc] initWithFileName:[note.fileURL lastPathComponent] url:note.fileURL]];
             [self.tableView reloadData];
         }
     }];
@@ -48,15 +42,8 @@
     [self.notes removeAllObjects];
     for (NSMetadataItem *item in [query results]) {
         NSURL *url = [item valueForAttribute:NSMetadataItemURLKey];
-        Note *doc = [[Note alloc] initWithFileURL:url];
-        [doc openWithCompletionHandler:^(BOOL success){
-            if(success){
-                [self.notes addObject:doc];
-                [self.tableView reloadData];
-            } else {
-                NSLog(@"Failed to open from iCloud");
-            }
-        }];
+        [self.notes addObject:[[FileRepresentation alloc] initWithFileName:[url lastPathComponent] url:url]];
+        [self.tableView reloadData];
     }
 }
 
@@ -82,9 +69,15 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queryDidFinishGathering:) name:NSMetadataQueryDidFinishGatheringNotification object:self.query];
         [self.query startQuery];
     } else {
-        NSLog(@"No iCloud access");
+        NSArray *localDocuments = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[[FileRepresentation localDocumentsDirectory] path] error:nil];
+        [self.notes removeAllObjects];
+        for (NSString *file in localDocuments) {
+            [self.notes addObject:[[FileRepresentation alloc] initWithFileName:[file lastPathComponent] url:[NSURL fileURLWithPath:[[[FileRepresentation localDocumentsDirectory] path] stringByAppendingPathComponent:file]]]];
+        }
     }
 }
+
+
 							
 - (void)didReceiveMemoryWarning
 {
@@ -161,58 +154,25 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-    Note *note = [_notes objectAtIndex:indexPath.row];
+    FileRepresentation *fileRepresentation = [self.notes objectAtIndex:indexPath.row];
     // Configure the cell.
-    cell.textLabel.text = note.fileURL.lastPathComponent;
+    cell.textLabel.text = fileRepresentation.fileName;
+    NSLog(@"Adding file to table: %@", fileRepresentation.fileURL);
     return cell;
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source.
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (!self.detailViewController) {
-        self.detailViewController = [[BSLDetailViewController alloc] initWithNibName:@"BSLDetailViewController" bundle:nil];
-    }
-    Note *note = [self.notes objectAtIndex:indexPath.row];
-    [self.delegate bslMasterViewController:self choseNewNote:note];
-    self.detailViewController.doc = note;
+    NSURL *noteURL = [[self.notes objectAtIndex:indexPath.row] fileURL];
+    Note *note = [[Note alloc] initWithFileURL:noteURL];
+    [note openWithCompletionHandler:^(BOOL success){
+        if(success){
+            [self.delegate bslMasterViewController:self choseNewNote:note];
+            NSLog(@"Opened document at URL: %@", noteURL);
+        } else {
+            NSLog(@"Failed to open document");
+        }
+    }];
 //    [self.navigationController pushViewController:self.detailViewController animated:YES];
 }
 

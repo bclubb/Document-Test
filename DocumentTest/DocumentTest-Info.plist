@@ -43,5 +43,25 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>DocumentTest Document Package</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.bubblesortlabs.documenttest</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>notes</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>
