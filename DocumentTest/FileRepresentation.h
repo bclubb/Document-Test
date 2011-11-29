@@ -17,4 +17,6 @@
 - (id)initWithUIDocument:(UIDocument *)document;
 - (id)fileRepresentationWithFileName:(NSString *)fileName url:(NSURL *)fileURL;
 + (NSURL*)localDocumentsDirectory;
++ (NSURL*)ubiquitousContainerURL;
++ (NSURL*)ubiquitousDocumentsDirectoryURL;
 @end

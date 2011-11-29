@@ -35,11 +35,18 @@
     if(localDocumentDirectory == nil){
         NSString *documentDirectoryPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
         NSLog(@"Initial Documents Path: %@", documentDirectoryPath);
-        localDocumentDirectory = [[NSURL fileURLWithPath:documentDirectoryPath] URLByAppendingPathComponent:@"Documents"];
+        localDocumentDirectory = [NSURL fileURLWithPath:documentDirectoryPath];
         NSLog(@"Final Documents Path: %@", localDocumentDirectory);
     }
     
     return localDocumentDirectory;
+}
+
++ (NSURL*)ubiquitousContainerURL{
+    return [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:nil];
+}
++ (NSURL*)ubiquitousDocumentsDirectoryURL{
+    return [[FileRepresentation ubiquitousContainerURL] URLByAppendingPathComponent:@"Documents"];
 }
 
 @end

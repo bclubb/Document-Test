@@ -24,7 +24,14 @@
 - (void)setDoc:(Note *)newDoc
 {
     if (_doc != newDoc) {
+        if(_doc != nil){
+            [self cleanup];
+        }
         _doc = newDoc;
+        _doc.delegate = self;
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(documentStateChanged)
+                                                     name:UIDocumentStateChangedNotification object:newDoc];
         
         // Update the view.
         [self configureView];
@@ -59,7 +66,6 @@
 }
 
 - (void)textViewDidChange:(UITextView *)textView{
-#warning This is not good because we are always warning iCloud when there is an issue. Better to do this less frequently.  It's ok I think because the write only happens when there is enough time.
     if(textView == self.noteView){
         self.doc.noteContent = textView.text;
         [self.doc updateChangeCount:UIDocumentChangeDone];
@@ -99,6 +105,7 @@
 
 - (void)viewDidDisappear:(BOOL)animated
 {
+    [self cleanup];
 	[super viewDidDisappear:animated];
 }
 
@@ -133,8 +140,22 @@
     self.masterPopoverController = nil;
 }
 
-- (void)bslMasterViewController:(BSLMasterViewController *)masterViewController choseNewNote:(Note *)doc{
-    [self setDoc:doc];
+-(void)noteContentsUpdated:(Note *)note{
+    NSLog(@"Contents Updated: %@", note.noteContent);
+    [self setDoc:note];
+}
+
+-(void)documentStateChanged{
+    UIDocumentState state = _doc.documentState;
+    NSLog(@"State changed: %@", state);
+    if(state & UIDocumentStateEditingDisabled){
+        [self.noteView resignFirstResponder];
+    }
+}
+
+- (void)cleanup{
+    [_doc closeWithCompletionHandler:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDocumentStateChangedNotification object:_doc];
 }
 
 @end

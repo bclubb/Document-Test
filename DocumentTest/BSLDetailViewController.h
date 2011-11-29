@@ -10,9 +10,12 @@
 #import "Note.h"
 #import "BSLMasterViewController.h"
 
-@interface BSLDetailViewController : UIViewController <UISplitViewControllerDelegate, UITextViewDelegate, BSLMasterViewControllerDelegate>
+@interface BSLDetailViewController : UIViewController <NoteDelegate, UISplitViewControllerDelegate, UITextViewDelegate>
 
 @property (strong, nonatomic) Note *doc;
 @property (weak) IBOutlet UITextView *noteView;
+
+-(void)documentStateChanged;
+-(void)cleanup;
 
 @end

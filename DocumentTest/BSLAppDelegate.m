@@ -33,9 +33,8 @@
 
     BSLDetailViewController *detailViewController = [[BSLDetailViewController alloc] initWithNibName:@"BSLDetailViewController" bundle:nil];
     UINavigationController *detailNavigationController = [[UINavigationController alloc] initWithRootViewController:detailViewController];
-    
-    masterViewController.delegate = detailViewController;
 
+    [masterViewController setDetailViewController:detailViewController];
     self.splitViewController = [[UISplitViewController alloc] init];
     self.splitViewController.delegate = detailViewController;
     self.splitViewController.viewControllers = [NSArray arrayWithObjects:masterNavigationController, detailNavigationController, nil];

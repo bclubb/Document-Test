@@ -8,8 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "Note.h"
-
-@protocol BSLMasterViewControllerDelegate;
+#import "FileRepresentation.h"
 
 @class BSLDetailViewController;
 
@@ -18,13 +17,9 @@
 @property (strong) BSLDetailViewController *detailViewController;
 @property (strong) NSMutableArray *notes;
 @property (strong) NSMetadataQuery *query;
-@property (weak) id<BSLMasterViewControllerDelegate> delegate;
 
--(void)loadNotes;
+- (void)loadNotes;
+- (void)moveFileToiCloud:(FileRepresentation *)fileToMove;
+- (void)moveFileToLocal:(FileRepresentation *)fileToMove;
 
 @end
-
-@protocol BSLMasterViewControllerDelegate
-- (void)bslMasterViewController:(BSLMasterViewController *)masterViewController choseNewNote:(Note *)doc;
-@end
-
