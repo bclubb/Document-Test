@@ -22,7 +22,6 @@ static int TextFileEncoding = NSStringEncodingConversionAllowLossy;
 @synthesize fileWrapper;
 @synthesize delegate = _delegate;
 
-#warning Not supporting local yet
 +(id)newNote{
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"yyyyMMdd_hhmmss"];
