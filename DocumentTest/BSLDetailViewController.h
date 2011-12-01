@@ -7,15 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Note.h"
 #import "BSLMasterViewController.h"
+#import "Note.h"
 
-@interface BSLDetailViewController : UIViewController <NoteDelegate, UISplitViewControllerDelegate, UITextViewDelegate>
+@interface BSLDetailViewController : UIViewController <UISplitViewControllerDelegate, UITextViewDelegate>
 
-@property (strong, nonatomic) Note *doc;
+@property (strong) Note *note;
 @property (weak) IBOutlet UITextView *noteView;
-
--(void)documentStateChanged;
--(void)cleanup;
+@property (strong) NSManagedObjectContext *managedObjectContext;
 
 @end

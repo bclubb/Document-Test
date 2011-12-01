@@ -7,19 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Note.h"
-#import "FileRepresentation.h"
 
 @class BSLDetailViewController;
 
 @interface BSLMasterViewController : UITableViewController
 
 @property (strong) BSLDetailViewController *detailViewController;
-@property (strong) NSMutableArray *notes;
-@property (strong) NSMetadataQuery *query;
+@property (strong) NSArray *notes;
+@property (strong) NSManagedObjectContext *managedObjectContext;
 
 - (void)loadNotes;
-- (void)moveFileToiCloud:(FileRepresentation *)fileToMove;
-- (void)moveFileToLocal:(FileRepresentation *)fileToMove;
 
 @end

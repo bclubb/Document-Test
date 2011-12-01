@@ -7,14 +7,13 @@
 //
 
 #import "BSLMasterViewController.h"
-#import "FileRepresentation.h"
 #import "BSLDetailViewController.h"
 
 @implementation BSLMasterViewController
 
 @synthesize detailViewController = _detailViewController;
 @synthesize notes = _notes;
-@synthesize query = _query;
+@synthesize managedObjectContext = _managedObjectContext;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -28,110 +27,19 @@
 }
 
 - (void)addNote:(id)sender{
-    Note *note = [Note newNote];
-    [note saveToURL:[note fileURL] forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success){
-        if(success){
-            FileRepresentation *fileRepresentation = [[FileRepresentation alloc] initWithFileName:[note.fileURL lastPathComponent] url:note.fileURL];
-            [self moveFileToiCloud:fileRepresentation];
-            [self.notes addObject:fileRepresentation];
-            [self.tableView reloadData];
-        }
-    }];
-}
+    Note *note = [NSEntityDescription insertNewObjectForEntityForName:@"Note" inManagedObjectContext:[self managedObjectContext]];
 
-- (void)moveFileToiCloud:(FileRepresentation *)fileToMove {
-    NSURL *sourceURL = fileToMove.fileURL;
-    NSString *destinationFileName = fileToMove.fileName;
-    NSURL *destinationURL = [[FileRepresentation ubiquitousDocumentsDirectoryURL] URLByAppendingPathComponent:destinationFileName];
-    
-    dispatch_queue_t q_default;
-    q_default = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_async(q_default, ^(void) {
-        NSFileManager *fileManager = [[NSFileManager alloc] init];
-        NSError *error = nil;
-        BOOL success = [fileManager setUbiquitous:YES itemAtURL:sourceURL
-                                   destinationURL:destinationURL error:&error];
-        dispatch_queue_t q_main = dispatch_get_main_queue();
-        dispatch_async(q_main, ^(void) {
-            if (success) {
-                FileRepresentation *fileRepresentation = [[FileRepresentation alloc]
-                                                          initWithFileName:fileToMove.fileName url:destinationURL];
-                [self.notes removeObject:fileToMove];
-                [self.notes addObject:fileRepresentation];
-                NSLog(@"moved file to cloud: %@", fileRepresentation.fileName);
-            }
-            if (!success) {
-                NSLog(@"Couldn't move file to iCloud: %@", fileToMove.fileName);
-            }
-        });
-    });
-}
-
-- (void)moveFileToLocal:(FileRepresentation *)fileToMove {
-    NSURL *sourceURL = fileToMove.fileURL;
-    NSString *destinationFileName = fileToMove.fileName;
-    NSURL *destinationURL = [[FileRepresentation ubiquitousDocumentsDirectoryURL] URLByAppendingPathComponent:destinationFileName];
-    
-    dispatch_queue_t q_default;
-    q_default = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_async(q_default, ^(void) {
-        NSFileManager *fileManager = [[NSFileManager alloc] init];
-        NSError *error = nil;
-        BOOL success = [fileManager setUbiquitous:NO itemAtURL:sourceURL destinationURL:destinationURL
-                                            error:&error];
-        dispatch_queue_t q_main = dispatch_get_main_queue();
-        dispatch_async(q_main, ^(void) {
-            if (success) {
-                FileRepresentation *fileRepresentation = [[FileRepresentation alloc]
-                                                          initWithFileName:fileToMove.fileName url:destinationURL];
-                [self.notes removeObject:fileToMove];
-                [self.notes addObject:fileRepresentation];
-                NSLog(@"moved file to local storage: %@", fileRepresentation);
-            }
-            if (!success) {
-                NSLog(@"Couldn't move file to local storage: %@", fileToMove);
-            }
-        });
-    });
-}
-
-- (void)loadData:(NSMetadataQuery *)query{
-    [self.notes removeAllObjects];
-    for (NSMetadataItem *item in [query results]) {
-        NSURL *url = [item valueForAttribute:NSMetadataItemURLKey];
-        [self.notes addObject:[[FileRepresentation alloc] initWithFileName:[url lastPathComponent] url:url]];
-        [self.tableView reloadData];
+    note.date = [NSDate date];
+    NSError *error;
+    if (![[self managedObjectContext] save:&error]) {
+        NSLog(@"Tried to add a note and got this error %@, %@", error, [error userInfo]); 
     }
-}
-
-- (void)queryDidFinishGathering:(NSNotification *)notification{
-    NSMetadataQuery *query = [notification object];
-    [query disableUpdates];
-    [query stopQuery];
-    
-    [self loadData:query];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSMetadataQueryDidFinishGatheringNotification object:query];
-    
-    self.query = nil;
+    [self loadNotes];
 }
                                  
 - (void)loadNotes{
-    NSURL *ubiq = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:nil];
-    if(ubiq){
-        self.query = [[NSMetadataQuery alloc] init];
-        [self.query setSearchScopes:[NSArray arrayWithObject:NSMetadataQueryUbiquitousDocumentsScope]];
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K like '*.notes'", NSMetadataItemFSNameKey];
-        [self.query setPredicate:predicate];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queryDidFinishGathering:) name:NSMetadataQueryDidFinishGatheringNotification object:self.query];
-        [self.query startQuery];
-    } else {
-        NSArray *localDocuments = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[[FileRepresentation localDocumentsDirectory] path] error:nil];
-        [self.notes removeAllObjects];
-        for (NSString *file in localDocuments) {
-            [self.notes addObject:[[FileRepresentation alloc] initWithFileName:[file lastPathComponent] url:[NSURL fileURLWithPath:[[[FileRepresentation localDocumentsDirectory] path] stringByAppendingPathComponent:file]]]];
-        }
-    }
+    self.notes = [Note getAllNotesWith:[self managedObjectContext]];
+    [self.tableView reloadData];
 }
 							
 - (void)didReceiveMemoryWarning
@@ -161,6 +69,7 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated{
+    [self loadNotes];
     [super viewWillAppear:animated];
 }
 
@@ -202,25 +111,21 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-    FileRepresentation *fileRepresentation = [self.notes objectAtIndex:indexPath.row];
+    Note *note = [self.notes objectAtIndex:indexPath.row];
     // Configure the cell.
-    cell.textLabel.text = fileRepresentation.fileName;
-    NSLog(@"Adding file to table: %@", fileRepresentation.fileURL);
+    cell.textLabel.text = [note stringDate];
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSURL *noteURL = [[self.notes objectAtIndex:indexPath.row] fileURL];
-    Note *note = [[Note alloc] initWithFileURL:noteURL];
-    note.delegate = self.detailViewController;
-    
-    if(note.documentState & UIDocumentStateClosed){
-        NSLog(@"Opening the document");
-        [note openWithCompletionHandler:nil];
-    }
-    
-//    [self.navigationController pushViewController:self.detailViewController animated:YES];
+    Note *note = [self.notes objectAtIndex:indexPath.row];
+    BSLDetailViewController *newBSLDetailViewController = [[BSLDetailViewController alloc] initWithNibName:nil bundle:nil];
+    newBSLDetailViewController.note = note;
+    newBSLDetailViewController.managedObjectContext = [self managedObjectContext];
+    UINavigationController *navigationController = self.detailViewController.navigationController;
+    [navigationController popViewControllerAnimated:NO];
+    [navigationController pushViewController:newBSLDetailViewController animated:NO];
 }
 
 @end

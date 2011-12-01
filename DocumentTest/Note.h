@@ -2,25 +2,20 @@
 //  Note.h
 //  DocumentTest
 //
-//  Created by Brian Clubb on 11/20/11.
+//  Created by Brian Clubb on 11/30/11.
 //  Copyright (c) 2011 Bubblesort Laboratories LLC. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 
-@protocol NoteDelegate;
 
-@interface Note : UIDocument
+@interface Note : NSManagedObject
 
-@property (strong) NSString *noteContent;
-@property (strong) UIImage *image;
-@property (strong) NSFileWrapper *fileWrapper;
-@property (weak) id<NoteDelegate> delegate;
+@property (strong, nonatomic) NSString *text;
+@property (strong, nonatomic) NSDate *date;
 
-+(id) newNote;
+- (NSString *)stringDate;
++ (NSArray *)getAllNotesWith:(NSManagedObjectContext *)context;
 
-@end
-
-@protocol NoteDelegate <NSObject>
--(void)noteContentsUpdated:(Note *)note;
 @end

@@ -7,11 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Note.h"
 
 @interface BSLAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) UISplitViewController *splitViewController;
+
+@property (strong, nonatomic, readonly) NSManagedObjectModel *managedObjectModel;
+@property (strong, nonatomic, readonly) NSManagedObjectContext *managedObjectContext;
+@property (strong, nonatomic, readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+
+- (NSURL*)localDocumentsDirectory;
 
 @end

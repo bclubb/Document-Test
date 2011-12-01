@@ -7,6 +7,7 @@
 //
 
 #import "BSLDetailViewController.h"
+#import "Note.h"
 
 @interface BSLDetailViewController ()
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
@@ -15,40 +16,20 @@
 
 @implementation BSLDetailViewController
 
-@synthesize doc = _doc;
+@synthesize note = _note;
 @synthesize noteView = _noteView;
 @synthesize masterPopoverController = _masterPopoverController;
+@synthesize managedObjectContext = _managedObjectContext;
 
 #pragma mark - Managing the detail item
-
-- (void)setDoc:(Note *)newDoc
-{
-    if (_doc != newDoc) {
-        if(_doc != nil){
-            [self cleanup];
-        }
-        _doc = newDoc;
-        _doc.delegate = self;
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(documentStateChanged)
-                                                     name:UIDocumentStateChangedNotification object:newDoc];
-        
-        // Update the view.
-        [self configureView];
-    }
-
-    if (self.masterPopoverController != nil) {
-        [self.masterPopoverController dismissPopoverAnimated:YES];
-    }        
-}
 
 - (void)configureView
 {
     // Update the user interface for the detail item.
 
-    if (self.doc) {
-        self.title = [self.doc.fileURL lastPathComponent];
-        self.noteView.text = self.doc.noteContent;
+    if (self.note) {
+        self.title = [self.note stringDate];
+        self.noteView.text = self.note.text;
     }
 }
 
@@ -61,23 +42,20 @@
 #pragma mark - View lifecycle
 
 - (void)dataReloaded:(NSNotification *)notification{
-#warning This is kinda scary because we just overwrite these contents with what came from iCloud
-    [self setDoc:notification.object];
+#warning This no longer happens, but something similar could.  I will want to refetch this record if it happens.
+    [self setNote:notification.object];
+    [self configureView];
 }
 
 - (void)textViewDidChange:(UITextView *)textView{
     if(textView == self.noteView){
-        self.doc.noteContent = textView.text;
-        [self.doc updateChangeCount:UIDocumentChangeDone];
+        self.note.text = textView.text;
     }
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReloaded:) name:@"noteModified" object:nil];
-	// Do any additional setup after loading the view, typically from a nib.
-    [self configureView];
 }
 
 - (void)viewDidUnload
@@ -100,12 +78,16 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    // Save at this point
+    NSError *error;
+    if (self.note != nil && ![[self managedObjectContext] save:&error]) {
+        NSLog(@"When the detail was disappearing I got this error %@, %@", error, [error userInfo]); 
+    }
 	[super viewWillDisappear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-    [self cleanup];
 	[super viewDidDisappear:animated];
 }
 
@@ -119,7 +101,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.title = @"Choose a Note";//NSLocalizedString(@"Detail", @"Detail");
+        self.title = @"Instructions";//NSLocalizedString(@"Detail", @"Detail");
     }
     return self;
 }
@@ -138,24 +120,6 @@
     // Called when the view is shown again in the split view, invalidating the button and popover controller.
     [self.navigationItem setLeftBarButtonItem:nil animated:YES];
     self.masterPopoverController = nil;
-}
-
--(void)noteContentsUpdated:(Note *)note{
-    NSLog(@"Contents Updated: %@", note.noteContent);
-    [self setDoc:note];
-}
-
--(void)documentStateChanged{
-    UIDocumentState state = _doc.documentState;
-    NSLog(@"State changed: %@", state);
-    if(state & UIDocumentStateEditingDisabled){
-        [self.noteView resignFirstResponder];
-    }
-}
-
-- (void)cleanup{
-    [_doc closeWithCompletionHandler:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDocumentStateChangedNotification object:_doc];
 }
 
 @end

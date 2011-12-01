@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7557296014840E3C0054206C /* FileRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7557295F14840E3C0054206C /* FileRepresentation.m */; };
 		7568832714781ED9006343AD /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7568832614781ED9006343AD /* UIKit.framework */; };
 		7568832914781ED9006343AD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7568832814781ED9006343AD /* Foundation.framework */; };
 		7568832B14781ED9006343AD /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7568832A14781ED9006343AD /* CoreGraphics.framework */; };
@@ -23,8 +22,10 @@
 		7568834D14781EDA006343AD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7568832814781ED9006343AD /* Foundation.framework */; };
 		7568835514781EDA006343AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7568835314781EDA006343AD /* InfoPlist.strings */; };
 		7568835814781EDA006343AD /* DocumentTestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7568835714781EDA006343AD /* DocumentTestTests.m */; };
-		7581D3C31479ADC1004F50EE /* Note.m in Sources */ = {isa = PBXBuildFile; fileRef = 7581D3C21479ADC1004F50EE /* Note.m */; };
 		7581D3FF1479DBA5004F50EE /* README in Resources */ = {isa = PBXBuildFile; fileRef = 7581D3FE1479DBA5004F50EE /* README */; };
+		75C45C95148712040034C779 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75C45C94148712040034C779 /* CoreData.framework */; };
+		75C45C99148714130034C779 /* NoteModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 75C45C97148714130034C779 /* NoteModel.xcdatamodeld */; };
+		75C45C9C148714F20034C779 /* Note.m in Sources */ = {isa = PBXBuildFile; fileRef = 75C45C9B148714F20034C779 /* Note.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,8 +39,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		7557295E14840E3C0054206C /* FileRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileRepresentation.h; sourceTree = "<group>"; };
-		7557295F14840E3C0054206C /* FileRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileRepresentation.m; sourceTree = "<group>"; };
 		7568832214781ED9006343AD /* documenttest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = documenttest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7568832614781ED9006343AD /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		7568832814781ED9006343AD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -63,9 +62,11 @@
 		7568835614781EDA006343AD /* DocumentTestTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DocumentTestTests.h; sourceTree = "<group>"; };
 		7568835714781EDA006343AD /* DocumentTestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DocumentTestTests.m; sourceTree = "<group>"; };
 		75688361147821A9006343AD /* documenttest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = documenttest.entitlements; sourceTree = "<group>"; };
-		7581D3C11479ADC1004F50EE /* Note.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Note.h; sourceTree = "<group>"; };
-		7581D3C21479ADC1004F50EE /* Note.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Note.m; sourceTree = "<group>"; };
 		7581D3FE1479DBA5004F50EE /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = SOURCE_ROOT; };
+		75C45C94148712040034C779 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		75C45C98148714130034C779 /* NoteModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NoteModel.xcdatamodel; sourceTree = "<group>"; };
+		75C45C9A148714F20034C779 /* Note.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Note.h; sourceTree = "<group>"; };
+		75C45C9B148714F20034C779 /* Note.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Note.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75C45C95148712040034C779 /* CoreData.framework in Frameworks */,
 				7568832714781ED9006343AD /* UIKit.framework in Frameworks */,
 				7568832914781ED9006343AD /* Foundation.framework in Frameworks */,
 				7568832B14781ED9006343AD /* CoreGraphics.framework in Frameworks */,
@@ -114,6 +116,7 @@
 		7568832514781ED9006343AD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				75C45C94148712040034C779 /* CoreData.framework */,
 				7568832614781ED9006343AD /* UIKit.framework */,
 				7568832814781ED9006343AD /* Foundation.framework */,
 				7568832A14781ED9006343AD /* CoreGraphics.framework */,
@@ -134,11 +137,10 @@
 				7568833C14781ED9006343AD /* BSLDetailViewController.m */,
 				7568833E14781ED9006343AD /* BSLMasterViewController.xib */,
 				7568834114781ED9006343AD /* BSLDetailViewController.xib */,
-				7581D3C11479ADC1004F50EE /* Note.h */,
-				7581D3C21479ADC1004F50EE /* Note.m */,
 				7568832D14781ED9006343AD /* Supporting Files */,
-				7557295E14840E3C0054206C /* FileRepresentation.h */,
-				7557295F14840E3C0054206C /* FileRepresentation.m */,
+				75C45C97148714130034C779 /* NoteModel.xcdatamodeld */,
+				75C45C9A148714F20034C779 /* Note.h */,
+				75C45C9B148714F20034C779 /* Note.m */,
 			);
 			path = DocumentTest;
 			sourceTree = "<group>";
@@ -287,8 +289,8 @@
 				7568833714781ED9006343AD /* BSLAppDelegate.m in Sources */,
 				7568833A14781ED9006343AD /* BSLMasterViewController.m in Sources */,
 				7568833D14781ED9006343AD /* BSLDetailViewController.m in Sources */,
-				7581D3C31479ADC1004F50EE /* Note.m in Sources */,
-				7557296014840E3C0054206C /* FileRepresentation.m in Sources */,
+				75C45C99148714130034C779 /* NoteModel.xcdatamodeld in Sources */,
+				75C45C9C148714F20034C779 /* Note.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +495,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		75C45C97148714130034C779 /* NoteModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				75C45C98148714130034C779 /* NoteModel.xcdatamodel */,
+			);
+			currentVersion = 75C45C98148714130034C779 /* NoteModel.xcdatamodel */;
+			path = NoteModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 7568831914781ED9006343AD /* Project object */;
 }
